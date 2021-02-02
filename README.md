@@ -9,7 +9,7 @@ Collection of AWS CodeArtifact actions.
 Default inputs add the `d2l/private` repository to `./nuget.config`:
 
 ```yaml
-  - name: Add CodeArtifact Nuget source
+  - name: Add CodeArtifact NuGet source
     uses: Brightspace/codeartifact-actions/add-nuget-source@master
 ```
 
@@ -18,6 +18,6 @@ Default inputs add the `d2l/private` repository to `./nuget.config`:
 Default inputs remove the `d2l/private` repository from `./nuget.config`:
 
 ```yaml
-  - name: Remove CodeArtifact Nuget source
+  - name: Remove CodeArtifact NuGet source
     uses: Brightspace/codeartifact-actions/remove-nuget-source@master
 ```
