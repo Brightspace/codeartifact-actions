@@ -1,4 +1,4 @@
-# codeartifact-actions
+# Brightspace/codeartifact-actions
 
 Collection of AWS CodeArtifact related GitHub Actions.
 
