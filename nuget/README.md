@@ -2,7 +2,7 @@
 
 ## Actions
 
-### add-nuget-source
+### add-source
 
 Adds the `d2l/private` repository to `./nuget.config` by default:
 
@@ -11,7 +11,7 @@ Adds the `d2l/private` repository to `./nuget.config` by default:
     uses: Brightspace/codeartifact-actions/nuget/add-source@v1.0.0
 ```
 
-### remove-nuget-source
+### remove-source
 
 Removes the `d2l/private` repository from `./nuget.config` by default:
 
