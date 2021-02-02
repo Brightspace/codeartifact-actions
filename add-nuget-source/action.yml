@@ -34,6 +34,7 @@ runs:
     - name: Add CodeArtifact NuGet source
       shell: bash
       run: |
+        if [ ! -f "${{inputs.nuget-config-path}}" ]; then echo "{}" >> "${{inputs.nuget-config-path}}"; fi
         repo_endpoint=$(aws codeartifact get-repository-endpoint --region "${{inputs.aws-region}}" --domain "${{inputs.domain}}" --repository "${{inputs.repository}}" --format nuget --output text --query repositoryEndpoint)
         source="${repo_endpoint}v3/index.json"
         auth_token=$(aws codeartifact get-authorization-token --domain "${{inputs.domain}}" --output text --query authorizationToken --duration-seconds "${{inputs.auth-token-duration-seconds}}")
