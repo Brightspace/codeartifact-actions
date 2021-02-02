@@ -1,6 +1,6 @@
 # codeartifact-actions
 
-Collection of AWS CodeArtifact actions.
+Collection of AWS CodeArtifact GitHub Actions.
 
 ## Actions
 
