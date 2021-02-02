@@ -1,5 +1,5 @@
-name: AWS CodeArtifact - Add Nuget Source
-description: Adds a nuget source
+name: AWS CodeArtifact - Add NuGet Source
+description: Adds a NuGet source to a nuget.config file
 inputs:
 
   aws-region:
@@ -18,7 +18,7 @@ inputs:
     required: true
 
   nuget-config-path:
-    description: The Nuget config path.
+    description: The NuGet config path.
     default: ./nuget.config
     required: false
 

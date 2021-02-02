@@ -1,0 +1,26 @@
+name: AWS CodeArtifact - Remove NuGet Source
+description: Removes a NuGet source from a nuget.config file
+inputs:
+
+  domain:
+    description: The CodeArtifact domain name.
+    default: d2l
+    required: true
+
+  repository:
+    description: The CodeArtifact repository name.
+    default: private
+    required: true
+
+  nuget-config-path:
+    description: The NuGet config path.
+    default: ./nuget.config
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Remove CodeArtifact NuGet source
+      shell: bash
+      run: dotnet nuget remove source "${{inputs.domain}}/${{inputs.repository}}" --configfile "${{inputs.nuget-config-path}}"
