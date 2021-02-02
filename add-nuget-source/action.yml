@@ -20,12 +20,12 @@ inputs:
   nuget-config-path:
     description: The NuGet config path.
     default: ./nuget.config
-    required: false
+    required: true
 
   auth-token-duration-seconds:
     description: How long the CodeArtifact authorization token valid for in seconds.
     default: 900
-    required: false
+    required: true
 
 runs:
   using: "composite"
