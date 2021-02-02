@@ -10,7 +10,6 @@ Default inputs add the `d2l/private` repository to `./nuget.config`:
 
 ```yaml
   - name: Add CodeArtifact Nuget source
-    id: setup-nuget-source
     uses: Brightspace/codeartifact-actions/add-nuget-source@master
 ```
 
@@ -20,6 +19,5 @@ Default inputs remove the `d2l/private` repository from `./nuget.config`:
 
 ```yaml
   - name: Remove CodeArtifact Nuget source
-    id: setup-nuget-source
     uses: Brightspace/codeartifact-actions/remove-nuget-source@master
 ```
