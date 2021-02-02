@@ -1,0 +1,40 @@
+name: AWS CodeArtifact - Add Nuget Source
+description: Adds a nuget source
+inputs:
+
+  aws-region:
+    description: The region of CodeArtifact domain.
+    default: us-east-1
+    required: true
+
+  domain:
+    description: The CodeArtifact domain name.
+    default: d2l
+    required: true
+
+  repository:
+    description: The CodeArtifact repository name.
+    default: private
+    required: true
+
+  nuget-config-path:
+    description: The Nuget config path.
+    default: ./nuget.config
+    required: false
+
+  auth-token-duration-seconds:
+    description: How long the CodeArtifact authorization token valid for in seconds.
+    default: 900
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+
+    - name: Add CodeArtifact NuGet source
+      shell: bash
+      run: |
+        repo_endpoint=$(aws codeartifact get-repository-endpoint --region "${{inputs.aws-region}}" --domain "${{inputs.domain}}" --repository "${{inputs.repository}}" --format nuget --output text --query repositoryEndpoint)
+        source="${repo_endpoint}v3/index.json"
+        auth_token=$(aws codeartifact get-authorization-token --domain "${{inputs.domain}}" --output text --query authorizationToken --duration-seconds "${{inputs.auth-token-duration-seconds}}")
+        dotnet nuget add source $source --configfile "${{inputs.nuget-config-path}}" --name "${{inputs.domain}}/${{inputs.repository}}" --username aws --password "$auth_token" --store-password-in-clear-text
