@@ -57,7 +57,7 @@ runs:
           echo "Setting role_session_name"
           aws configure set role_session_name codeartifact --profile $profile
           echo "Getting repository endpoint"
-          repo_endpoint=$(aws codeartifact get-repository-endpoint --region "${{inputs.aws-region}}" --domain "${{inputs.domain}}" --repository "${{inputs.repository}}" --format nuget --output text --query repositoryEndpoint --profile $profile)
+          repo_endpoint=$(aws codeartifact get-repository-endpoint --region "${{inputs.aws-region}}" --domain "${{inputs.domain}}" --repository "${{inputs.repository}}" --format nuget --output text --query repositoryEndpoint --profile $profile --debug)
           source="${repo_endpoint}v3/index.json"
           auth_token=$(aws codeartifact get-authorization-token --domain "${{inputs.domain}}" --output text --query authorizationToken --duration-seconds "${{inputs.auth-token-duration-seconds}}" --region "${{inputs.aws-region}}" --profile $profile)
         fi
