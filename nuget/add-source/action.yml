@@ -27,6 +27,11 @@ inputs:
     default: 900
     required: true
 
+  role-arn:
+    description: The arn of the role to assume.
+    default: ''
+    required: false
+
 runs:
   using: "composite"
   steps:
@@ -34,8 +39,21 @@ runs:
     - name: Add CodeArtifact NuGet source
       shell: bash
       run: |
-        if [ ! -f "${{inputs.nuget-config-path}}" ]; then echo "<configuration/>" >> "${{inputs.nuget-config-path}}"; fi
-        repo_endpoint=$(aws codeartifact get-repository-endpoint --region "${{inputs.aws-region}}" --domain "${{inputs.domain}}" --repository "${{inputs.repository}}" --format nuget --output text --query repositoryEndpoint)
+        if [ ! -f "${{inputs.nuget-config-path}}" ]; then
+          echo "<configuration/>" >> "${{inputs.nuget-config-path}}"; 
+        fi
+        if [ -z "${{inputs.role-arn}}" ]; then
+          profile_switch=""
+          profile_arg=""
+        else
+          export AWS_CONFIG_FILE="${{github.workspace}}/.aws/config"
+          aws configure set credential_source Environment --profile codeartifact
+          aws configure set role_arn "${{inputs.role-arn}}" --profile codeartifact
+          aws configure set role_session_name codeartifact --profile codeartifact
+          profile_switch="--profile"
+          profile_arg="codeartifact"
+        fi
+        repo_endpoint=$(aws codeartifact get-repository-endpoint --region "${{inputs.aws-region}}" --domain "${{inputs.domain}}" --repository "${{inputs.repository}}" --format nuget --output text --query repositoryEndpoint $profile_switch $profile_arg)
         source="${repo_endpoint}v3/index.json"
-        auth_token=$(aws codeartifact get-authorization-token --domain "${{inputs.domain}}" --output text --query authorizationToken --duration-seconds "${{inputs.auth-token-duration-seconds}}" --region "${{inputs.aws-region}}")
+        auth_token=$(aws codeartifact get-authorization-token --domain "${{inputs.domain}}" --output text --query authorizationToken --duration-seconds "${{inputs.auth-token-duration-seconds}}" --region "${{inputs.aws-region}" $profile_switch $profile_arg})
         dotnet nuget add source $source --configfile "${{inputs.nuget-config-path}}" --name "${{inputs.domain}}/${{inputs.repository}}" --username aws --password "$auth_token" --store-password-in-clear-text
