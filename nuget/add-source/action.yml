@@ -47,6 +47,7 @@ runs:
           profile_arg=""
         else
           export AWS_CONFIG_FILE="${{github.workspace}}/.aws/config"
+          echo "Setting up CodeArtifact profile in $AWS_CONFIG_FILE"
           aws configure set credential_source Environment --profile codeartifact
           aws configure set role_arn "${{inputs.role-arn}}" --profile codeartifact
           aws configure set role_session_name codeartifact --profile codeartifact
