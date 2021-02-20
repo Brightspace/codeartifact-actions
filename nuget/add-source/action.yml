@@ -47,7 +47,7 @@ runs:
         else
           profile_switch="--profile"
         fi
-        repo_endpoint=$(aws codeartifact get-repository-endpoint --region "${{inputs.aws-region}}" --domain "${{inputs.domain}}" --repository "${{inputs.repository}}" --format nuget --output text --query repositoryEndpoint $profile_switch "${{inputs.aws-profile}}")
+        repo_endpoint=$(aws codeartifact get-repository-endpoint --region "${{inputs.aws-region}}" --domain "${{inputs.domain}}" --repository "${{inputs.repository}}" --format nuget --output text --query repositoryEndpoint "$profile_switch" "${{inputs.aws-profile}}")
         source="${repo_endpoint}v3/index.json"
-        auth_token=$(aws codeartifact get-authorization-token --domain "${{inputs.domain}}" --output text --query authorizationToken --duration-seconds "${{inputs.auth-token-duration-seconds}}" --region "${{inputs.aws-region}}" $profile_switch "${{inputs.aws-profile}}")
+        auth_token=$(aws codeartifact get-authorization-token --domain "${{inputs.domain}}" --output text --query authorizationToken --duration-seconds "${{inputs.auth-token-duration-seconds}}" --region "${{inputs.aws-region}}" "$profile_switch" "${{inputs.aws-profile}}")
         dotnet nuget add source $source --configfile "${{inputs.nuget-config-path}}" --name "${{inputs.domain}}/${{inputs.repository}}" --username aws --password "$auth_token" --store-password-in-clear-text
