@@ -40,7 +40,7 @@ runs:
       shell: bash
       run: |
         if [ ! -f "${{inputs.nuget-config-path}}" ]; then
-          echo "<configuration/>" >> "${{inputs.nuget-config-path}}"; 
+          echo "<configuration/>" >> "${{inputs.nuget-config-path}}"
         fi
         if [ -z "${{inputs.role-arn}}" ]; then
           profile_switch=""
