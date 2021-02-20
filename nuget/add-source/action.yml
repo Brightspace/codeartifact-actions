@@ -48,6 +48,7 @@ runs:
           auth_token=$(aws codeartifact get-authorization-token --domain "${{inputs.domain}}" --output text --query authorizationToken --duration-seconds "${{inputs.auth-token-duration-seconds}}" --region "${{inputs.aws-region}}")
         else
           profile="github_codeartifact"
+          mkdir "${{github.workspace}}/.aws"
           export AWS_CONFIG_FILE="${{github.workspace}}/.aws/config"
           export AWS_SHARED_CREDENTIALS_FILE="${{github.workspace}}/.aws/credentials"
           echo "Configuring aws profile '$profile' in $AWS_CONFIG_FILE"
