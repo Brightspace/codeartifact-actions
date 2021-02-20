@@ -49,12 +49,12 @@ runs:
         else
           profile="github_codeartifact"
           export AWS_CONFIG_FILE="${{github.workspace}}/.aws/config"
+          export AWS_SHARED_CREDENTIALS_FILE="${{github.workspace}}/.aws/credentials"
           echo "Configuring aws profile '$profile' in $AWS_CONFIG_FILE"
           aws configure set credential_source Environment --profile $profile
           aws configure set duration_seconds 900 --profile $profile
           aws configure set role_arn "${{inputs.role-arn}}" --profile $profile
           aws configure set role_session_name codeartifact --profile $profile
-          echo $AWS_CONFIG_FILE
 
           repo_endpoint=$(aws codeartifact get-repository-endpoint --region "${{inputs.aws-region}}" --domain "${{inputs.domain}}" --repository "${{inputs.repository}}" --format nuget --output text --query repositoryEndpoint --profile $profile --debug)
           source="${repo_endpoint}v3/index.json"
