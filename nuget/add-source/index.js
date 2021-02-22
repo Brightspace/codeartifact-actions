@@ -27,7 +27,6 @@ async function addNugetSource(
     'nuget',
     'add',
     'source',
-    `${repositoryEndpoint}v3/index.json`,
     '--configfile',
     configFile,
     '--name',
@@ -36,7 +35,8 @@ async function addNugetSource(
     'aws',
     '--password',
     authorizationToken,
-    '--store-password-in-clear-text'
+    '--store-password-in-clear-text',
+    `${repositoryEndpoint}v3/index.json`,
   ];
 
   const { stdout } = await execFile( 'dotnet', args );
@@ -49,6 +49,9 @@ async function createNugetConfig( path ) {
     await writeFile( path, '<configuratiion />', {
       flag: 'wx'
     });
+
+    console.log( `Created ${path}` );
+
   } catch( err ) {
 
     // ok if the file already exists
