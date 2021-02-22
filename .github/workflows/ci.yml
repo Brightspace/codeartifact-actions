@@ -6,9 +6,6 @@ on:
     branches:
       - master
 
-env:
-  NODE_VERSION: 12
-
 jobs:
   test:
     name: Test
@@ -19,7 +16,7 @@ jobs:
 
       - uses: Brightspace/third-party-actions@actions/setup-node
         with:
-          node-version: ${{env.NODE_VERSION}}
+          node-version: 12
 
       - name: nuget/add-source
         cwd: nuget/add-source
