@@ -60,7 +60,7 @@ async function createNugetConfig( path ) {
   }
 }
 
-async function getCredentialsAsync( roleArn ) {
+async function getCredentialsAsync( region, roleArn ) {
 
   if( !roleArn ) {
     return null;
@@ -111,7 +111,7 @@ async function run() {
       { required: false }
     );
 
-    const credentials = await getCredentialsAsync( roleArn );
+    const credentials = await getCredentialsAsync( awsRegion, roleArn );
 
     const codeartifact = new CodeartifactClient( {
       credentials: credentials,
