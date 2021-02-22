@@ -119,14 +119,25 @@ test( 'run with role arn', async () => {
 	</ResponseMetadata>
 </AssumeRoleResponse> ` );
 
-		const getAuthTokenRequest = nock( codeartifactEndpoint, nockOptions )
+		const assumedRoleNockOptions = Object.assign(
+			{
+				reqheaders: {
+					'Authorization': val => {
+						return val.includes( 'AAAA2222' );
+					}
+				}
+			},
+			nockOptions
+		);
+
+		const getAuthTokenRequest = nock( codeartifactEndpoint, assumedRoleNockOptions )
 			.post( '/v1/authorization-token?domain=d2l&duration=1800' )
 			.reply( 200, {
 				authorizationToken: authorizationToken,
 				expiration: 1614024177
 			} );
 
-		const getRepostitoryEndpointRequest = nock( codeartifactEndpoint, nockOptions )
+		const getRepostitoryEndpointRequest = nock( codeartifactEndpoint, assumedRoleNockOptions )
 		.get( '/v1/repository/endpoint?domain=d2l&format=nuget&repository=private' )
 		.reply( 200, {
 			repositoryEndpoint: repositoryEndpoint
