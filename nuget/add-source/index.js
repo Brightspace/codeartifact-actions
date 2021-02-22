@@ -70,15 +70,22 @@ async function getCredentialsAsync( awsRegion, roleArn ) {
     region: awsRegion
   } );
 
-  const credentials = await sts.send(
+  const resp = await sts.send(
     new AssumeRoleCommand( {
-      roleArn: roleArn,
-      roleSessionName: 'codeartifact',
-      durationSeconds: 900
+      RoleArn: roleArn,
+      RoleSessionName: 'codeartifact',
+      DurationSeconds: 900
     } )
   );
 
-  return credentials;
+  const credentials = resp.Credentials;
+
+  return {
+    accessKeyId: credentials.AccessKeyId,
+    secretAccessKey: credentials.SecretAccessKey,
+    sessionToken: credentials.SessionToken,
+    expiration: credentials.Expiration
+  };
 }
 
 async function run() {
@@ -113,7 +120,10 @@ async function run() {
       { required: false }
     );
 
-    const credentials = await getCredentialsAsync( awsRegion, roleArn );
+    const credentials = await getCredentialsAsync(
+      awsRegion,
+      roleArn
+    );
 
     const codeartifact = new CodeartifactClient( {
       credentials: credentials,
