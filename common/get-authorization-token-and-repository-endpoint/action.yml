@@ -1,0 +1,35 @@
+name: AWS CodeArtifact - Get Authorization Token & Repository Endpoint
+description: Gets a CodeArtifact authorization token and domain endpoint.
+inputs:
+
+  auth-token-duration-seconds:
+    description: How long the CodeArtifact authorization token valid for in seconds.
+    required: true
+
+  aws-region:
+    description: The region of CodeArtifact domain.
+    required: true
+
+  domain:
+    description: The CodeArtifact domain name.
+    required: true
+
+  repository:
+    description: The CodeArtifact repository name.
+    required: true
+
+  repository-endpoint-format:
+    description: The CodeArtifact repository endpoint format.
+    required: true
+
+  role-arn:
+    description: The IAM role arn to assume.
+    required: false
+
+outputs:
+
+  authorization-token:
+    description: The AWS CodeArtifact authorization endpoint.
+
+  repository-endpoint:
+    description: The AWS CodeArtifact authorization endpoint.

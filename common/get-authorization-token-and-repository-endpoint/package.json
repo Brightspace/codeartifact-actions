@@ -1,0 +1,21 @@
+{
+  "name": "get-authorization-token-and-repository-endpoint-action",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "lint": "eslint .",
+    "prepare": "ncc build index.js -o dist --source-map --license licenses.txt",
+    "all": "npm run lint && npm run prepare"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@actions/core": "^1.2.5",
+    "@aws-sdk/client-codeartifact": "^3.6.0",
+    "@aws-sdk/client-sts": "^3.6.0"
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.27.0",
+    "eslint": "^7.4.0",
+    "jest": "^26.6.3"
+  }
+}

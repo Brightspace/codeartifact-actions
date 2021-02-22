@@ -27,15 +27,35 @@ inputs:
     default: 900
     required: true
 
+  role-arn:
+    description: The IAM role arn to assume.
+    required: false
+
 runs:
   using: "composite"
   steps:
 
+    - name: Get CodeArtifact Authorization Token & Repository endpoint
+      id: codeartifact
+      uses: ../../common/get-authorization-token-and-repository-endpoint
+      with:
+        auth-token-duration-seconds: ${{inputs.auth-token-duration-seconds}}
+        aws-region: ${{inputs.aws-region}}
+        domain: ${{inputs.domain}}
+        repository: ${{inputs.repository}}
+        repository-endpoint-format: nuget
+        role-arn: ${{inputs.role-arn}}
+
     - name: Add CodeArtifact NuGet source
       shell: bash
       run: |
-        if [ ! -f "${{inputs.nuget-config-path}}" ]; then echo "<configuration/>" >> "${{inputs.nuget-config-path}}"; fi
-        repo_endpoint=$(aws codeartifact get-repository-endpoint --region "${{inputs.aws-region}}" --domain "${{inputs.domain}}" --repository "${{inputs.repository}}" --format nuget --output text --query repositoryEndpoint)
-        source="${repo_endpoint}v3/index.json"
-        auth_token=$(aws codeartifact get-authorization-token --domain "${{inputs.domain}}" --output text --query authorizationToken --duration-seconds "${{inputs.auth-token-duration-seconds}}" --region "${{inputs.aws-region}}")
-        dotnet nuget add source $source --configfile "${{inputs.nuget-config-path}}" --name "${{inputs.domain}}/${{inputs.repository}}" --username aws --password "$auth_token" --store-password-in-clear-text
+        if [ ! -f "${{inputs.nuget-config-path}}" ]; then
+          echo "<configuration/>" >> "${{inputs.nuget-config-path}}"
+        fi
+        dotnet nuget add \
+          source "${{steps.codeartifact.outputs.repository-endpoint}}v3/index.json" \
+          --configfile "${{inputs.nuget-config-path}}" \
+          --name "${{inputs.domain}}/${{inputs.repository}}" \
+          --username aws \
+          --password "${{steps.codeartifact.outputs.authorization-token}}" \
+          --store-password-in-clear-text
