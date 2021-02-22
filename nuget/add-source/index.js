@@ -13,7 +13,7 @@ const {
 const {
   STSClient,
   AssumeRoleCommand
-} = require( '@aws-sdk/client-codeartifact' );
+} = require( '@aws-sdk/client-sts' );
 
 async function addNugetSource(
     configFile,
