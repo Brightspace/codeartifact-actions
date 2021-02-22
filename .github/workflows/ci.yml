@@ -23,4 +23,7 @@ jobs:
 
       - name: nuget/add-source
         cwd: nuget/add-source
-        run: npm run ci
+        run: npm run all
+
+      - name: "Ensure no local changes from dist generation"
+        run: git diff --exit-code
