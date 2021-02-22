@@ -19,7 +19,7 @@ jobs:
           node-version: 12
 
       - name: nuget/add-source
-        run: npm run all
+        run: npm install && npm run all
         working-directory: nuget/add-source
 
       - name: "Ensure no local changes from dist generation"
