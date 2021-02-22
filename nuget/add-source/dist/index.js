@@ -83,13 +83,15 @@ async function createNugetConfig( path ) {
   }
 }
 
-async function getCredentialsAsync( region, roleArn ) {
+async function getCredentialsAsync( awsRegion, roleArn ) {
 
   if( !roleArn ) {
     return null;
   }
 
-  const sts = new STSClient();
+  const sts = new STSClient({
+    region: awsRegion
+  } );
 
   const credentials = await sts.send(
     new AssumeRoleCommand( {
