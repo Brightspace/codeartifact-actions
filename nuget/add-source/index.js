@@ -62,7 +62,7 @@ async function createNugetConfig( path ) {
 	try {
 		await writeFile( path, '<configuration />', {
 			flag: 'wx'
-		});
+		} );
 
 		console.log( `Created ${path}` );
 
@@ -173,18 +173,18 @@ async function run() {
 	const repositoryEndpoint = resps[ 1 ].repositoryEndpoint;
 	
 	await addNugetSource(
-			nugetConfigPath,
-			domain,
-			repository,
-			authorizationToken,
-			repositoryEndpoint
+		nugetConfigPath,
+		domain,
+		repository,
+		authorizationToken,
+		repositoryEndpoint
 	);
 }
 
 if ( require.main === module ) {
 	run().catch( err => {
 		core.setFailed( err );
-	});
+	} );
 }
 
 module.exports = run;
