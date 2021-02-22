@@ -1,8 +1,8 @@
 const core = require( '@actions/core' );
 const { writeFile } = require( 'fs' ).promises;
 
-const util = require( 'util' );
-const execFile = util.promisify( require( 'child_process' ).execFile );
+const { promisify } = require( 'util' );
+const execFile = promisify( require( 'child_process' ).execFile );
 
 const {
   CodeartifactClient,
