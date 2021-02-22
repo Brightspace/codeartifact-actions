@@ -1,4 +1,4 @@
-const action = require( './index' );
+const action = require( './' );
 const { readFile } = require( 'fs' ).promises;
 const nock = require( 'nock' );
 const { v4: uuidv4 } = require( 'uuid' );
