@@ -1,5 +1,5 @@
 {
-  "name": "get-authorization-token-and-repository-endpoint-action",
+  "name": "nuget-add-source",
   "private": true,
   "main": "index.js",
   "scripts": {

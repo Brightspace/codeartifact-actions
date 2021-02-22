@@ -1,4 +1,8 @@
 const core = require( '@actions/core' );
+const { writeFile } = require( 'fs' ).promises;
+
+const util = require( 'util' );
+const execFile = util.promisify( require( 'child_process' ).execFile );
 
 const {
   CodeartifactClient,
@@ -11,6 +15,49 @@ const {
   AssumeRoleCommand
 } = require( '@aws-sdk/client-codeartifact' );
 
+async function addNugetSource(
+    configFile,
+    domain,
+    repository,
+    authorizationToken,
+    repositoryEndpoint
+  ) {
+
+  const args = [
+    'nuget',
+    'add',
+    'source',
+    `${repositoryEndpoint}v3/index.json`,
+    '--configfile',
+    configFile,
+    '--name',
+    `${domain}/${repository}`,
+    '--username',
+    'aws',
+    '--password',
+    authorizationToken,
+    '--store-password-in-clear-text'
+  ];
+
+  await execFile( 'dotnet', args );
+}
+
+async function createNugetConfig( path ) {
+
+  try {
+    await writeFile( path, '<configuratiion />', {
+      flag: 'wx'
+    });
+  } catch( err ) {
+
+    // ok if the file already exists
+    if( err.code === 'EEXIST' ) {
+      return;
+    }
+
+    throw err;
+  }
+}
 
 async function getCredentialsAsync( roleArn ) {
 
@@ -45,6 +92,11 @@ async function run() {
 
     const domain = core.getInput(
       'domain',
+      { required: true }
+    );
+
+    const nugetConfigPath = core.getInput(
+      'nuget-config-path',
       { required: true }
     );
 
@@ -85,11 +137,18 @@ async function run() {
       } )
     );
 
-    const authTokenResp = await authTokenP;
-    core.setOutput( 'authorization-token', authTokenResp.authorizationToken );
+    await createNugetConfig( nugetConfigPath );
 
+    const authTokenResp = await authTokenP;
     const repositoryEndpointResp = await repositoryEndpointP;
-    core.setOutput( 'repository-endpoint', repositoryEndpointResp.repositoryEndpoint );
+
+    await addNugetSource(
+        nugetConfigPath,
+        domain,
+        repository,
+        authTokenResp.authorizationToken,
+        repositoryEndpointResp.repositoryEndpoint
+    );
 
   } catch( error ) {
     core.setFailed( error.message );
