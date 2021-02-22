@@ -105,11 +105,6 @@ async function run() {
       { required: true } 
     );
 
-    const repositoryEndpointFormat = core.getInput(
-      'repository-endpoint-format',
-      { required: true } 
-    );
-
     const roleArn = core.getInput(
       'role-arn',
       { required: false }
@@ -133,7 +128,7 @@ async function run() {
       new GetRepositoryEndpointCommand( {
         domain: domain,
         repository: repository,
-        format: repositoryEndpointFormat
+        format: 'nuget'
       } )
     );
 
