@@ -1,8 +1,6 @@
 const core = require( '@actions/core' );
+const { execFile } = require( 'child_process' );
 const { writeFile } = require( 'fs' ).promises;
-
-const { promisify } = require( 'util' );
-const execFile = promisify( require( 'child_process' ).execFile );
 
 const {
   CodeartifactClient,
@@ -39,8 +37,20 @@ async function addNugetSource(
     `${repositoryEndpoint}v3/index.json`,
   ];
 
-  const { stdout } = await execFile( 'dotnet', args );
-  console.log( stdout );
+  return new Promise( ( resolve, reject ) => {
+
+    execFile( 'dotnet', args, ( err, stdout, stderr ) => {
+
+      console.log( stdout );
+      console.error( stderr );
+
+      if( err ) {
+        reject( err );
+      } else {
+        resolve();
+      }
+    } );
+  } );
 }
 
 async function createNugetConfig( path ) {

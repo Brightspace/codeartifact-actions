@@ -22,10 +22,8 @@ module.exports = JSON.parse("{\"name\":\"@aws-sdk/client-sts\",\"description\":\
 /***/ ((__unused_webpack_module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const core = __nccwpck_require__( 2186 );
+const { execFile } = __nccwpck_require__( 3129 );
 const { writeFile } = __nccwpck_require__(5747).promises;
-
-const { promisify } = __nccwpck_require__( 1669 );
-const execFile = promisify( __nccwpck_require__(3129).execFile );
 
 const {
   CodeartifactClient,
@@ -62,8 +60,20 @@ async function addNugetSource(
     `${repositoryEndpoint}v3/index.json`,
   ];
 
-  const { stdout } = await execFile( 'dotnet', args );
-  console.log( stdout );
+  return new Promise( ( resolve, reject ) => {
+
+    execFile( 'dotnet', args, ( err, stdout, stderr ) => {
+
+      console.log( stdout );
+      console.error( stderr );
+
+      if( err ) {
+        reject( err );
+      } else {
+        resolve();
+      }
+    } );
+  } );
 }
 
 async function createNugetConfig( path ) {
@@ -22391,14 +22401,6 @@ module.exports = require("stream");;
 
 "use strict";
 module.exports = require("url");;
-
-/***/ }),
-
-/***/ 1669:
-/***/ ((module) => {
-
-"use strict";
-module.exports = require("util");;
 
 /***/ })
 
