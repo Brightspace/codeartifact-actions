@@ -19,8 +19,8 @@ jobs:
           node-version: 12
 
       - name: nuget/add-source
-        cwd: nuget/add-source
         run: npm run all
+        working-directory: nuget/add-source
 
       - name: "Ensure no local changes from dist generation"
         run: git diff --exit-code
