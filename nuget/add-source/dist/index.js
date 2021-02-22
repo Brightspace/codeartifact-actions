@@ -16,8 +16,8 @@ module.exports = JSON.parse("{\"name\":\"@aws-sdk/client-codeartifact\",\"descri
 const core = __nccwpck_require__( 2186 );
 const { writeFile } = __nccwpck_require__(5747).promises;
 
-const util = __nccwpck_require__( 1669 );
-const execFile = util.promisify( __nccwpck_require__(3129).execFile );
+const { promisify } = __nccwpck_require__( 1669 );
+const execFile = promisify( __nccwpck_require__(3129).execFile );
 
 const {
   CodeartifactClient,
@@ -120,11 +120,6 @@ async function run() {
       { required: true } 
     );
 
-    const repositoryEndpointFormat = core.getInput(
-      'repository-endpoint-format',
-      { required: true } 
-    );
-
     const roleArn = core.getInput(
       'role-arn',
       { required: false }
@@ -148,7 +143,7 @@ async function run() {
       new GetRepositoryEndpointCommand( {
         domain: domain,
         repository: repository,
-        format: repositoryEndpointFormat
+        format: 'nuget'
       } )
     );
 
