@@ -13,7 +13,7 @@ const {
   AssumeRoleCommand
 } = require( '@aws-sdk/client-sts' );
 
-async function addNugetSource(
+function addNugetSource(
     configFile,
     domain,
     repository,
@@ -41,8 +41,12 @@ async function addNugetSource(
 
     execFile( 'dotnet', args, ( err, stdout, stderr ) => {
 
-      console.log( stdout );
-      console.error( stderr );
+      if( stdout ) {
+        console.log( stdout );
+      }
+      if( stderr ) {
+        console.error( stderr );
+      }
 
       if( err ) {
         reject( err );
@@ -102,78 +106,85 @@ async function getCredentialsAsync( awsRegion, roleArn ) {
 }
 
 async function run() {
-  try {
-    const authTokenDurationSeconds = core.getInput(
-      'auth-token-duration-seconds',
-      { required: true }
-    );
 
-    const awsRegion = core.getInput(
-      'aws-region',
-      { required: true }
-    );
+  const authTokenDurationSeconds = core.getInput(
+    'auth-token-duration-seconds',
+    { required: true }
+  );
 
-    const domain = core.getInput(
-      'domain',
-      { required: true }
-    );
+  const awsRegion = core.getInput(
+    'aws-region',
+    { required: true }
+  );
 
-    const nugetConfigPath = core.getInput(
-      'nuget-config-path',
-      { required: true }
-    );
+  const domain = core.getInput(
+    'domain',
+    { required: true }
+  );
 
-    const repository = core.getInput(
-      'repository',
-      { required: true } 
-    );
+  const nugetConfigPath = core.getInput(
+    'nuget-config-path',
+    { required: true }
+  );
 
-    const roleArn = core.getInput(
-      'role-arn',
-      { required: false }
-    );
+  const repository = core.getInput(
+    'repository',
+    { required: true } 
+  );
 
-    const credentials = await getCredentialsAsync(
-      awsRegion,
-      roleArn
-    );
+  const roleArn = core.getInput(
+    'role-arn',
+    { required: false }
+  );
 
-    const codeartifact = new CodeartifactClient( {
-      credentials: credentials,
-      region: awsRegion
-    } );
+  const credentials = await getCredentialsAsync(
+    awsRegion,
+    roleArn
+  );
 
-    const authTokenP = codeartifact.send(
-      new GetAuthorizationTokenCommand( {
-        domain: domain,
-        durationSeconds: parseInt( authTokenDurationSeconds )
-      } )
-    );
+  const codeartifact = new CodeartifactClient( {
+    credentials: credentials,
+    region: awsRegion
+  } );
 
-    const repositoryEndpointP  = codeartifact.send(
-      new GetRepositoryEndpointCommand( {
-        domain: domain,
-        repository: repository,
-        format: 'nuget'
-      } )
-    );
+  const authTokenP = codeartifact.send(
+    new GetAuthorizationTokenCommand( {
+      domain: domain,
+      durationSeconds: parseInt( authTokenDurationSeconds )
+    } )
+  );
 
-    await createNugetConfig( nugetConfigPath );
+  const repositoryEndpointP  = codeartifact.send(
+    new GetRepositoryEndpointCommand( {
+      domain: domain,
+      repository: repository,
+      format: 'nuget'
+    } )
+  );
 
-    const authTokenResp = await authTokenP;
-    const repositoryEndpointResp = await repositoryEndpointP;
+  await createNugetConfig( nugetConfigPath );
 
-    await addNugetSource(
-        nugetConfigPath,
-        domain,
-        repository,
-        authTokenResp.authorizationToken,
-        repositoryEndpointResp.repositoryEndpoint
-    );
+  const resps = await Promise.all( [
+    authTokenP,
+    repositoryEndpointP
+  ] );
 
-  } catch( error ) {
-    core.setFailed( error );
-  }
+  const authorizationToken = resps[ 0 ].authorizationToken;
+  const repositoryEndpoint = resps[ 1 ].repositoryEndpoint;
+  
+  await addNugetSource(
+      nugetConfigPath,
+      domain,
+      repository,
+      authorizationToken,
+      repositoryEndpoint
+  );
 }
 
-run();
+if ( require.main === module ) {
+  run().catch( err => {
+    core.setFailed( error );
+  });
+}
+
+module.exports = run;
