@@ -177,7 +177,7 @@ async function run() {
 		} )
 	);
 
-	const repositoryEndpointP	= codeartifact.send(
+	const repositoryEndpointP = codeartifact.send(
 		new GetRepositoryEndpointCommand( {
 			domain: domain,
 			repository: repository,
