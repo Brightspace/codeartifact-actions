@@ -62,7 +62,8 @@ async function addNugetSource(
     '--store-password-in-clear-text'
   ];
 
-  await execFile( 'dotnet', args );
+  const { stdout } = await execFile( 'dotnet', args );
+  console.log( stdout );
 }
 
 async function createNugetConfig( path ) {
