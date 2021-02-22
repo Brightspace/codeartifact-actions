@@ -79,7 +79,7 @@ async function addNugetSource(
 async function createNugetConfig( path ) {
 
   try {
-    await writeFile( path, '<configuratiion />', {
+    await writeFile( path, '<configuration />', {
       flag: 'wx'
     });
 
