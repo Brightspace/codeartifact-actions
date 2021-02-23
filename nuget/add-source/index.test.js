@@ -50,10 +50,10 @@ test( 'run with environment crecentials', async () => {
 		} );
 
 	const getRepostitoryEndpointRequest = nock( codeartifactEndpoint, nockOptions )
-	.get( '/v1/repository/endpoint?domain=d2l&format=nuget&repository=private' )
-	.reply( 200, {
-		repositoryEndpoint: repositoryEndpoint
-	} );
+		.get( '/v1/repository/endpoint?domain=d2l&format=nuget&repository=private' )
+		.reply( 200, {
+			repositoryEndpoint: repositoryEndpoint
+		} );
 
 	await action();
 
@@ -109,10 +109,10 @@ test( 'run with existing nuget.config', async () => {
 		} );
 
 	const getRepostitoryEndpointRequest = nock( codeartifactEndpoint, nockOptions )
-	.get( '/v1/repository/endpoint?domain=d2l&format=nuget&repository=private' )
-	.reply( 200, {
-		repositoryEndpoint: repositoryEndpoint
-	} );
+		.get( '/v1/repository/endpoint?domain=d2l&format=nuget&repository=private' )
+		.reply( 200, {
+			repositoryEndpoint: repositoryEndpoint
+		} );
 
 	await action();
 
@@ -177,7 +177,7 @@ test( 'run with role arn', async () => {
 	<ResponseMetadata>
 		<RequestId>80d945a7-fc9c-4911-b2f2-59a2fae05643</RequestId>
 	</ResponseMetadata>
-</AssumeRoleResponse> ` );
+</AssumeRoleResponse>` );
 
 	const assumedRoleNockOptions = Object.assign(
 		{
@@ -198,10 +198,10 @@ test( 'run with role arn', async () => {
 		} );
 
 	const getRepostitoryEndpointRequest = nock( codeartifactEndpoint, assumedRoleNockOptions )
-	.get( '/v1/repository/endpoint?domain=d2l&format=nuget&repository=private' )
-	.reply( 200, {
-		repositoryEndpoint: repositoryEndpoint
-	} );
+		.get( '/v1/repository/endpoint?domain=d2l&format=nuget&repository=private' )
+		.reply( 200, {
+			repositoryEndpoint: repositoryEndpoint
+		} );
 
 	await action();
 
