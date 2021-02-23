@@ -1,5 +1,5 @@
 const action = require( './' );
-const { readFile } = require( 'fs' ).promises;
+const { readFile, writeFile } = require( 'fs' ).promises;
 const nock = require( 'nock' );
 const { v4: uuidv4 } = require( 'uuid' );
 
@@ -78,29 +78,89 @@ test( 'run with environment crecentials', async () => {
 	expect( config ).toEqual( expectedConfig );
 } );
 
+test( 'run with existing nuget.config', async () => {
+
+	const configPath = `tmp/${uuidv4()}.nuget.config`;
+
+	const existingConfig = `<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+  </packageSources>
+</configuration>`
+
+	await writeFile( configPath, existingConfig, { encoding: 'utf8' } );
+
+	process.env = {
+		AWS_ACCESS_KEY_ID: 'AAAA1111',
+		AWS_SECRET_ACCESS_KEY: 'KKKK1111',
+		'INPUT_AUTH-TOKEN-DURATION-SECONDS': '900',
+		'INPUT_AWS-REGION': awsRegion,
+		INPUT_DOMAIN: domain,
+		INPUT_REPOSITORY: repository,
+		'INPUT_NUGET-CONFIG-PATH': configPath,
+	};
+
+	const getAuthTokenRequest = nock( codeartifactEndpoint, nockOptions )
+		.post( '/v1/authorization-token?domain=d2l&duration=900' )
+		.reply( 200, {
+			authorizationToken: authorizationToken,
+			expiration: 1614024177
+		} );
+
+	const getRepostitoryEndpointRequest = nock( codeartifactEndpoint, nockOptions )
+	.get( '/v1/repository/endpoint?domain=d2l&format=nuget&repository=private' )
+	.reply( 200, {
+		repositoryEndpoint: repositoryEndpoint
+	} );
+
+	await action();
+
+	getAuthTokenRequest.done();
+	getRepostitoryEndpointRequest.done();
+
+	const config = await readFile( configPath, { encoding: 'utf8' } );
+
+	const expectedConfig = `\uFEFF<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+    <add key="${domain}/${repository}" value="${repositoryEndpoint}v3/index.json" />
+  </packageSources>
+  <packageSourceCredentials>
+    <d2l_x002F_private>
+        <add key="Username" value="aws" />
+        <add key="ClearTextPassword" value="${authorizationToken}" />
+      </d2l_x002F_private>
+  </packageSourceCredentials>
+</configuration>`;
+
+	expect( config ).toEqual( expectedConfig );
+} );
+
 test( 'run with role arn', async () => {
 
-		const configPath = `tmp/${uuidv4()}.nuget.config`;
-		const roleArn = "arn:aws:iam::111111111111:role/test";
+	const configPath = `tmp/${uuidv4()}.nuget.config`;
+	const roleArn = "arn:aws:iam::111111111111:role/test";
 
-		process.env = {
-			AWS_ACCESS_KEY_ID: 'AAAA1111',
-			AWS_SECRET_ACCESS_KEY: 'KKKK1111',
-			'INPUT_AUTH-TOKEN-DURATION-SECONDS': '1800',
-			'INPUT_AWS-REGION': awsRegion,
-			INPUT_DOMAIN: domain,
-			INPUT_REPOSITORY: repository,
-			'INPUT_ROLE-ARN': roleArn,
-			'INPUT_NUGET-CONFIG-PATH': configPath,
-		};
+	process.env = {
+		AWS_ACCESS_KEY_ID: 'AAAA1111',
+		AWS_SECRET_ACCESS_KEY: 'KKKK1111',
+		'INPUT_AUTH-TOKEN-DURATION-SECONDS': '1800',
+		'INPUT_AWS-REGION': awsRegion,
+		INPUT_DOMAIN: domain,
+		INPUT_REPOSITORY: repository,
+		'INPUT_ROLE-ARN': roleArn,
+		'INPUT_NUGET-CONFIG-PATH': configPath,
+	};
 
-		let assumeRoleRequestBody = null;
-		const assumeRoleRequest = nock( stsEndpoint, nockOptions )
-			.post( '/', body => {
-				assumeRoleRequestBody = body;
-				return true;
-			} )
-			.reply( 200, `
+	let assumeRoleRequestBody = null;
+	const assumeRoleRequest = nock( stsEndpoint, nockOptions )
+		.post( '/', body => {
+			assumeRoleRequestBody = body;
+			return true;
+		} )
+		.reply( 200, `
 <AssumeRoleResponse xmlns="https://sts.amazonaws.com/doc/2011-06-15/">
 	<AssumeRoleResult>
 		<AssumedRoleUser>
@@ -119,47 +179,47 @@ test( 'run with role arn', async () => {
 	</ResponseMetadata>
 </AssumeRoleResponse> ` );
 
-		const assumedRoleNockOptions = Object.assign(
-			{
-				reqheaders: {
-					'Authorization': val => {
-						return val.includes( 'AAAA2222' );
-					}
+	const assumedRoleNockOptions = Object.assign(
+		{
+			reqheaders: {
+				'Authorization': val => {
+					return val.includes( 'AAAA2222' );
 				}
-			},
-			nockOptions
-		);
+			}
+		},
+		nockOptions
+	);
 
-		const getAuthTokenRequest = nock( codeartifactEndpoint, assumedRoleNockOptions )
-			.post( '/v1/authorization-token?domain=d2l&duration=1800' )
-			.reply( 200, {
-				authorizationToken: authorizationToken,
-				expiration: 1614024177
-			} );
-
-		const getRepostitoryEndpointRequest = nock( codeartifactEndpoint, assumedRoleNockOptions )
-		.get( '/v1/repository/endpoint?domain=d2l&format=nuget&repository=private' )
+	const getAuthTokenRequest = nock( codeartifactEndpoint, assumedRoleNockOptions )
+		.post( '/v1/authorization-token?domain=d2l&duration=1800' )
 		.reply( 200, {
-			repositoryEndpoint: repositoryEndpoint
+			authorizationToken: authorizationToken,
+			expiration: 1614024177
 		} );
 
-		await action();
+	const getRepostitoryEndpointRequest = nock( codeartifactEndpoint, assumedRoleNockOptions )
+	.get( '/v1/repository/endpoint?domain=d2l&format=nuget&repository=private' )
+	.reply( 200, {
+		repositoryEndpoint: repositoryEndpoint
+	} );
 
-		assumeRoleRequest.done();
-		getAuthTokenRequest.done();
-		getRepostitoryEndpointRequest.done();
+	await action();
 
-		expect( assumeRoleRequestBody ).toEqual( {
-			Action: 'AssumeRole',
-			DurationSeconds: '900',
-			RoleArn: roleArn,
-			RoleSessionName: 'codeartifact',
-			Version: '2011-06-15'
-		} );
+	assumeRoleRequest.done();
+	getAuthTokenRequest.done();
+	getRepostitoryEndpointRequest.done();
 
-		const config = await readFile( configPath, { encoding: 'utf8' } );
+	expect( assumeRoleRequestBody ).toEqual( {
+		Action: 'AssumeRole',
+		DurationSeconds: '900',
+		RoleArn: roleArn,
+		RoleSessionName: 'codeartifact',
+		Version: '2011-06-15'
+	} );
 
-		const expectedConfig = `\uFEFF<?xml version="1.0" encoding="utf-8"?>
+	const config = await readFile( configPath, { encoding: 'utf8' } );
+
+	const expectedConfig = `\uFEFF<?xml version="1.0" encoding="utf-8"?>
 <configuration>
   <packageSources>
     <add key="${domain}/${repository}" value="${repositoryEndpoint}v3/index.json" />
@@ -172,5 +232,5 @@ test( 'run with role arn', async () => {
   </packageSourceCredentials>
 </configuration>`;
 
-		expect( config ).toEqual( expectedConfig );
-	} );
+	expect( config ).toEqual( expectedConfig );
+} );
